@@ -20,6 +20,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     customPlot = new QCustomPlot(this->ui->centralwidget);
     customPlot->setGeometry(350, 300, 400, 300); // (x, y, width, height)
+    customPlot->axisRect()->setAutoMargins(QCP::msNone);
+    customPlot->axisRect()->setMargins(QMargins(80, 20, 20, 80));
+
 }
 void MainWindow::initializeNetwork(int numNeurons_)
 {
@@ -234,23 +237,26 @@ void MainWindow::drawGraph()
     customPlot->addGraph();
     customPlot->graph(0)->setData(stepIndices, errorHistory);
 
-    // Grafik özelliklerini ayarla
     customPlot->graph(0)->setPen(QPen(Qt::blue));
     customPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
 
-    // Eksen etiketlerini ayarla
     customPlot->xAxis->setLabel("Training Step");
+    customPlot->xAxis->setLabelFont(QFont("Arial", 10));
+    customPlot->xAxis->setLabelColor(Qt::black);
     customPlot->yAxis->setLabel("Mean Squared Error");
+    customPlot->yAxis->setLabelFont(QFont("Arial", 10));
+    customPlot->yAxis->setLabelColor(Qt::black);
 
-    // Eksen aralıklarını ayarla
     customPlot->xAxis->setRange(0, stepCounter);
     if (!errorHistory.isEmpty()) {
         double minError = *std::min_element(errorHistory.begin(), errorHistory.end());
         double maxError = *std::max_element(errorHistory.begin(), errorHistory.end());
         customPlot->yAxis->setRange(minError * 0.9, maxError * 1.1);
+    } else {
+        customPlot->yAxis->setRange(0, 1);
     }
 
-    // Grafiği yeniden çiz
+
     customPlot->replot();
 }
 MainWindow::~MainWindow()
