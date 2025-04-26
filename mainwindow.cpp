@@ -14,8 +14,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     training = false;
     epochCounter = 0;
+    stepCounter = 0;
+    errorHistory.clear();
+    stepIndices.clear();
 
-
+    customPlot = new QCustomPlot(this->ui->centralwidget);
+    customPlot->setGeometry(350, 300, 400, 300); // (x, y, width, height)
 }
 void MainWindow::initializeNetwork(int numNeurons_)
 {
@@ -105,12 +109,16 @@ void MainWindow::startTraining()
     if (training) return; //do not start traing if it is already runing
     training = true;
     epochCounter = 0;
+    stepCounter = 0;
+    errorHistory.clear();
+    stepIndices.clear();
 
     initializeNetwork(ui->neuronSpinBox->value());
 
     //create training data for function f = (sin(x)/x)(sin(y)/y)
     trainingData.clear();
-    for (double x = -3.0; x <= 3.0; x += 0.5) { //11 x 11 = 121 value
+    int cntr = 0;
+    for (double x = -3.0; x <= 3.0; x += 0.5) { //13 x 13 = 169 values
         for (double y = -3.0; y <= 3.0; y += 0.5) {
 
             double x_val = (x == 0.0) ? 0.0001 : x; //avoid divide by zero for x
@@ -120,6 +128,23 @@ void MainWindow::startTraining()
 
             trainingData.push_back({{x, y}, target});
         }
+        qDebug() << "x val" << x << "cntr" << cntr;
+        cntr++;
+    }
+
+    // Eğitim verilerini QTextEdit'e yaz
+    ui->trainingDataTextEdit->clear();
+    int setNo = 1; // Veri seti numarası sayacı
+    for (const auto& data : trainingData) {
+        double x = data.first.first;
+        double y = data.first.second;
+        double target = data.second;
+        ui->trainingDataTextEdit->append(QString("Set No: %1 | x: %2 | y: %3 | Z: %4")
+                                         .arg(setNo)
+                                         .arg(x, 0, 'f', 2)  // 2 ondalık basamak
+                                         .arg(y, 0, 'f', 2)  // 2 ondalık basamak
+                                         .arg(target, 0, 'f', 6));  // 6 ondalık basamak
+        setNo++;
     }
 
     dataIndex = 0;
@@ -181,6 +206,13 @@ void MainWindow::trainStep()
     }
 
     totalError /= trainingData.size();
+    // Hata değerini ve adım indeksini kaydet
+    errorHistory.append(totalError);
+    stepIndices.append(stepCounter);
+    stepCounter++;
+
+    // Grafiği güncelle
+    drawGraph();
 
     if (totalError < stopCondition) {
         training = false;
@@ -194,6 +226,32 @@ void MainWindow::trainStep()
     ui->errorLabel->setText(QString("Epoch: %1, Error: %2").arg(epochCounter).arg(totalError, 0, 'f', 6));
 
     QApplication::processEvents();
+}
+void MainWindow::drawGraph()
+{
+    customPlot->clearGraphs();
+
+    customPlot->addGraph();
+    customPlot->graph(0)->setData(stepIndices, errorHistory);
+
+    // Grafik özelliklerini ayarla
+    customPlot->graph(0)->setPen(QPen(Qt::blue));
+    customPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
+
+    // Eksen etiketlerini ayarla
+    customPlot->xAxis->setLabel("Training Step");
+    customPlot->yAxis->setLabel("Mean Squared Error");
+
+    // Eksen aralıklarını ayarla
+    customPlot->xAxis->setRange(0, stepCounter);
+    if (!errorHistory.isEmpty()) {
+        double minError = *std::min_element(errorHistory.begin(), errorHistory.end());
+        double maxError = *std::max_element(errorHistory.begin(), errorHistory.end());
+        customPlot->yAxis->setRange(minError * 0.9, maxError * 1.1);
+    }
+
+    // Grafiği yeniden çiz
+    customPlot->replot();
 }
 MainWindow::~MainWindow()
 {

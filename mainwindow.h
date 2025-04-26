@@ -10,6 +10,7 @@
 #include <QString>
 #include <QtMath>
 #include <QRandomGenerator>
+#include "qcustomplot.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -34,7 +35,10 @@ private:
     bool training;
     size_t dataIndex; // Eğitim döngüsünde hangi veri noktasının işlendiğini takip eder
     int epochCounter;       // Yeni epoch sayacı
-
+    QCustomPlot* customPlot;
+    QVector<double> errorHistory; // Hata değerlerini saklamak için
+    QVector<double> stepIndices;  // Adım indekslerini saklamak için
+    int stepCounter;              // Adım sayacı
     // Eğitim verisi
     QVector<QPair<QPair<double, double>, double>> trainingData;
 
@@ -55,5 +59,7 @@ private slots:
     void startTraining();
     void stopTraining();
     void trainStep();
+    void drawGraph();
+
 };
 #endif // MAINWINDOW_H
