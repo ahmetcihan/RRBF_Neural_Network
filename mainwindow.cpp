@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->stopTrainingButton, SIGNAL(clicked(bool)), this, SLOT(stopTraining()));
     connect(ui->createTrainingSetButton, SIGNAL(clicked(bool)), this, SLOT(createTrainingDataSet()));
     connect(ui->pushButton_find_Z, SIGNAL(clicked(bool)), this, SLOT(FindZ()));
+    connect(ui->drawTestGraphButton, SIGNAL(clicked(bool)), this, SLOT(drawTestGraph())); // Yeni bağlantı
 
     training = false;
     epochCounter = 0;
@@ -21,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     stepIndices.clear();
 
     customPlot = new QCustomPlot(this->ui->groupBox_training);
-    customPlot->setGeometry(10, 90, 420, 360); // (x, y, width, height)
+    customPlot->setGeometry(10, 90, 420, 365); // (x, y, width, height)
     customPlot->axisRect()->setAutoMargins(QCP::msNone);
     customPlot->axisRect()->setMargins(QMargins(70, 20, 20, 60));
     customPlot->xAxis->setLabel("Training Step");
@@ -30,6 +31,9 @@ MainWindow::MainWindow(QWidget *parent)
     customPlot->yAxis->setLabel("Mean Squared Error");
     customPlot->yAxis->setLabelFont(QFont("Arial", 12));
     customPlot->yAxis->setLabelColor(Qt::black);
+
+    testPlot = new QCustomPlot(this->ui->groupBox_testing);
+    testPlot->setGeometry(10, 90, 420, 365); // Test grafiği için farklı bir konum
 
 }
 void MainWindow::initializeNetwork(int numNeurons_)
@@ -281,6 +285,97 @@ void MainWindow::FindZ()
     ui->zFoundLabel->setText(QString("Z is found: %1").arg(z_found, 0, 'f', 6));
     ui->zMustBeLabel->setText(QString("Z must be: %1").arg(z_must_be, 0, 'f', 6));
 }
+void MainWindow::drawTestGraph()
+{
+    // Eğitim yapılmış mı kontrol et
+    if (numNeurons == 0 || centers.isEmpty() || stdDevs.isEmpty() || weights.isEmpty()) {
+        qDebug() << "Error: Network not trained yet!";
+        return;
+    }
+
+    // Test verisini oluştur
+    testIndices.clear();
+    networkOutputs.clear();
+    targetOutputs.clear();
+
+    int index = 0;
+    for (double x = -3.0; x <= 3.0; x += 0.1) { // Daha yoğun veri için 0.1 adımla
+        for (double y = -3.0; y <= 3.0; y += 0.1) {
+            // Ağın çıkışını hesapla
+            double z_found = computeOutput(x, y);
+
+            // Hedef çıkışı hesapla
+            double x_val = (x == 0.0) ? 0.0001 : x;
+            double y_val = (y == 0.0) ? 0.0001 : y;
+            double z_must_be = (qSin(x_val) / x_val) * (qSin(y_val) / y_val);
+
+            // Verileri sakla
+            testIndices.append(index);
+            networkOutputs.append(z_found);
+            targetOutputs.append(z_must_be);
+
+            index++;
+        }
+    }
+
+    // Grafiği çiz
+    testPlot->clearGraphs();
+
+    // Ağın çıkışını çiz (mavi çizgi)
+    testPlot->addGraph();
+    testPlot->graph(0)->setData(testIndices, networkOutputs);
+    testPlot->graph(0)->setPen(QPen(Qt::blue));
+    testPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
+    testPlot->graph(0)->setName("Network Output");
+
+    // Hedef çıkışı çiz (kırmızı çizgi)
+    testPlot->addGraph();
+    testPlot->graph(1)->setData(testIndices, targetOutputs);
+    testPlot->graph(1)->setPen(QPen(Qt::red));
+    testPlot->graph(1)->setLineStyle(QCPGraph::lsLine);
+    testPlot->graph(1)->setName("Target Output");
+
+    // Eksen etiketlerini ayarla
+    testPlot->xAxis->setLabel("Test Data Index");
+    testPlot->xAxis->setLabelFont(QFont("Arial", 8));
+    testPlot->xAxis->setLabelColor(Qt::black);
+    testPlot->xAxis->setLabelPadding(10);
+    testPlot->yAxis->setLabel("Z Value");
+    testPlot->yAxis->setLabelFont(QFont("Arial", 8));
+    testPlot->yAxis->setLabelColor(Qt::black);
+    testPlot->yAxis->setLabelPadding(10);
+
+    // Eksen aralıklarını ayarla
+    testPlot->xAxis->setRange(0, testIndices.size());
+    if (!networkOutputs.isEmpty() && !targetOutputs.isEmpty()) {
+        double minNetwork = *std::min_element(networkOutputs.begin(), networkOutputs.end());
+        double maxNetwork = *std::max_element(networkOutputs.begin(), networkOutputs.end());
+        double minTarget = *std::min_element(targetOutputs.begin(), targetOutputs.end());
+        double maxTarget = *std::max_element(targetOutputs.begin(), targetOutputs.end());
+        double minY = qMin(minNetwork, minTarget);
+        double maxY = qMax(maxNetwork, maxTarget);
+        testPlot->yAxis->setRange(minY * 1.1, maxY * 1.1);
+    } else {
+        testPlot->yAxis->setRange(-1, 1);
+    }
+
+    // Izgara ve başlık ekle
+    testPlot->xAxis->grid()->setVisible(true);
+    testPlot->yAxis->grid()->setVisible(true);
+    testPlot->plotLayout()->insertRow(0);
+    testPlot->plotLayout()->addElement(0, 0, new QCPTextElement(testPlot, "Network vs Target Output", QFont("Arial", 10, QFont::Bold)));
+
+    // Lejant ekle
+    testPlot->legend->setVisible(true);
+    testPlot->axisRect()->insetLayout()->setInsetAlignment(0, Qt::AlignTop | Qt::AlignRight);
+
+    // Kenar boşluklarını ayarla
+    testPlot->axisRect()->setAutoMargins(QCP::msNone);
+    testPlot->axisRect()->setMargins(QMargins(50, 50, 50, 80));
+
+    testPlot->replot();
+}
+
 MainWindow::~MainWindow()
 {
     delete ui;

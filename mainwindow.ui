@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>801</width>
+    <width>1250</width>
     <height>685</height>
    </rect>
   </property>
@@ -364,7 +364,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>449</y>
+       <y>455</y>
        <width>400</width>
        <height>31</height>
       </rect>
@@ -398,7 +398,7 @@
      </font>
     </property>
     <property name="title">
-     <string>Test Single Set</string>
+     <string>Test with a Single Set</string>
     </property>
     <widget class="QLabel" name="errorLabel_7">
      <property name="geometry">
@@ -565,13 +565,73 @@
      </property>
     </widget>
    </widget>
+   <widget class="QGroupBox" name="groupBox_testing">
+    <property name="geometry">
+     <rect>
+      <x>800</x>
+      <y>10</y>
+      <width>440</width>
+      <height>641</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>15</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="title">
+     <string>Testing</string>
+    </property>
+    <widget class="QLabel" name="errorLabel_9">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>590</y>
+       <width>400</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Epoch: 0 , Error: 0</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="drawTestGraphButton">
+     <property name="geometry">
+      <rect>
+       <x>110</x>
+       <y>40</y>
+       <width>200</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Draw Test Graph</string>
+     </property>
+    </widget>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>801</width>
+     <width>1250</width>
      <height>24</height>
     </rect>
    </property>

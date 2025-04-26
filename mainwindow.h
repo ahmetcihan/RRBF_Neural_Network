@@ -42,6 +42,12 @@ private:
     // Eğitim verisi
     QVector<QPair<QPair<double, double>, double>> trainingData;
 
+    // Test grafiği için yeni değişkenler
+    QCustomPlot* testPlot; // Yeni bir QCustomPlot widget'ı
+    QVector<double> testIndices; // Test verisi indeksleri
+    QVector<double> networkOutputs; // Ağın çıkışları
+    QVector<double> targetOutputs; // Hedef çıkışlar
+
     // RRBF işlevleri
     void initializeNetwork(int numNeurons_);
     double computePhi(int i, double x, double y) const;
@@ -62,6 +68,7 @@ private slots:
     void trainStep();
     void drawGraph();
     void FindZ();
+    void drawTestGraph(); // Yeni slot
 
 };
 #endif // MAINWINDOW_H
