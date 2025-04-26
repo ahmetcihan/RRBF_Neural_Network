@@ -56,10 +56,12 @@ private:
                        double learningRate);
 
 private slots:
+    void createTrainingDataSet();
     void startTraining();
     void stopTraining();
     void trainStep();
     void drawGraph();
+    void FindZ();
 
 };
 #endif // MAINWINDOW_H

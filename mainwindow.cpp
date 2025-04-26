@@ -11,6 +11,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->startTrainingButton, SIGNAL(clicked(bool)), this, SLOT(startTraining()));
     connect(ui->stopTrainingButton, SIGNAL(clicked(bool)), this, SLOT(stopTraining()));
+    connect(ui->createTrainingSetButton, SIGNAL(clicked(bool)), this, SLOT(createTrainingDataSet()));
+    connect(ui->pushButton_find_Z, SIGNAL(clicked(bool)), this, SLOT(FindZ()));
 
     training = false;
     epochCounter = 0;
@@ -18,10 +20,16 @@ MainWindow::MainWindow(QWidget *parent)
     errorHistory.clear();
     stepIndices.clear();
 
-    customPlot = new QCustomPlot(this->ui->centralwidget);
-    customPlot->setGeometry(350, 300, 400, 300); // (x, y, width, height)
+    customPlot = new QCustomPlot(this->ui->groupBox_training);
+    customPlot->setGeometry(10, 90, 420, 360); // (x, y, width, height)
     customPlot->axisRect()->setAutoMargins(QCP::msNone);
-    customPlot->axisRect()->setMargins(QMargins(80, 20, 20, 80));
+    customPlot->axisRect()->setMargins(QMargins(70, 20, 20, 60));
+    customPlot->xAxis->setLabel("Training Step");
+    customPlot->xAxis->setLabelFont(QFont("Arial", 12));
+    customPlot->xAxis->setLabelColor(Qt::black);
+    customPlot->yAxis->setLabel("Mean Squared Error");
+    customPlot->yAxis->setLabelFont(QFont("Arial", 12));
+    customPlot->yAxis->setLabelColor(Qt::black);
 
 }
 void MainWindow::initializeNetwork(int numNeurons_)
@@ -107,17 +115,8 @@ void MainWindow::updateParameters(const QVector<double>& grad_weights, const QVe
         if (stdDevs[i] < 0.01) stdDevs[i] = 0.01;
     }
 }
-void MainWindow::startTraining()
+void MainWindow::createTrainingDataSet()
 {
-    if (training) return; //do not start traing if it is already runing
-    training = true;
-    epochCounter = 0;
-    stepCounter = 0;
-    errorHistory.clear();
-    stepIndices.clear();
-
-    initializeNetwork(ui->neuronSpinBox->value());
-
     //create training data for function f = (sin(x)/x)(sin(y)/y)
     trainingData.clear();
     int cntr = 0;
@@ -142,13 +141,23 @@ void MainWindow::startTraining()
         double x = data.first.first;
         double y = data.first.second;
         double target = data.second;
-        ui->trainingDataTextEdit->append(QString("Set No: %1 | x: %2 | y: %3 | Z: %4")
-                                         .arg(setNo)
+        ui->trainingDataTextEdit->append(QString("Set No: %1 | x: %2 | y: %3 | Z: %4").arg(setNo)
                                          .arg(x, 0, 'f', 2)  // 2 ondalık basamak
                                          .arg(y, 0, 'f', 2)  // 2 ondalık basamak
                                          .arg(target, 0, 'f', 6));  // 6 ondalık basamak
         setNo++;
     }
+}
+void MainWindow::startTraining()
+{
+    if (training) return; //do not start traing if it is already runing
+    training = true;
+    epochCounter = 0;
+    stepCounter = 0;
+    errorHistory.clear();
+    stepIndices.clear();
+
+    initializeNetwork(ui->neuronSpinBox->value());
 
     dataIndex = 0;
 
@@ -240,13 +249,6 @@ void MainWindow::drawGraph()
     customPlot->graph(0)->setPen(QPen(Qt::blue));
     customPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
 
-    customPlot->xAxis->setLabel("Training Step");
-    customPlot->xAxis->setLabelFont(QFont("Arial", 10));
-    customPlot->xAxis->setLabelColor(Qt::black);
-    customPlot->yAxis->setLabel("Mean Squared Error");
-    customPlot->yAxis->setLabelFont(QFont("Arial", 10));
-    customPlot->yAxis->setLabelColor(Qt::black);
-
     customPlot->xAxis->setRange(0, stepCounter);
     if (!errorHistory.isEmpty()) {
         double minError = *std::min_element(errorHistory.begin(), errorHistory.end());
@@ -256,8 +258,28 @@ void MainWindow::drawGraph()
         customPlot->yAxis->setRange(0, 1);
     }
 
-
     customPlot->replot();
+}
+void MainWindow::FindZ()
+{
+    // Eğitim yapılmış mı kontrol et
+    if (numNeurons == 0 || centers.isEmpty() || stdDevs.isEmpty() || weights.isEmpty()) {
+        ui->zFoundLabel->setText("Z is found: N/A (Train the network first)");
+        ui->zMustBeLabel->setText("Z must be: N/A (Train the network first)");
+        return;
+    }
+
+    double x = ui->doubleSpinBox_test_x->value();
+    double y = ui->doubleSpinBox_test_y->value();
+
+    double z_found = computeOutput(x, y);
+
+    double x_val = (x == 0.0) ? 0.0001 : x;
+    double y_val = (y == 0.0) ? 0.0001 : y;
+    double z_must_be = (qSin(x_val) / x_val) * (qSin(y_val) / y_val);
+
+    ui->zFoundLabel->setText(QString("Z is found: %1").arg(z_found, 0, 'f', 6));
+    ui->zMustBeLabel->setText(QString("Z must be: %1").arg(z_must_be, 0, 'f', 6));
 }
 MainWindow::~MainWindow()
 {
