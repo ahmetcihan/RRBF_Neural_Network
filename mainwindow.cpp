@@ -13,6 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->stopTrainingButton, SIGNAL(clicked(bool)), this, SLOT(stopTraining()));
 
     training = false;
+    epochCounter = 0;
 
 
 }
@@ -103,6 +104,7 @@ void MainWindow::startTraining()
 {
     if (training) return; //do not start traing if it is already runing
     training = true;
+    epochCounter = 0;
 
     initializeNetwork(ui->neuronSpinBox->value());
 
@@ -125,7 +127,7 @@ void MainWindow::startTraining()
     //define 100 milisecond timer for training loop
     QTimer* timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(trainStep()));
-    timer->start(100);
+    timer->start(10);
 }
 void MainWindow::stopTraining()
 {
@@ -179,13 +181,17 @@ void MainWindow::trainStep()
     }
 
     totalError /= trainingData.size();
-    ui->errorLabel->setText(QString("Error: %1").arg(totalError, 0, 'f', 6));
 
     if (totalError < stopCondition) {
         training = false;
     }
 
     dataIndex = (dataIndex + 1) % static_cast<size_t>(trainingData.size());
+    if (dataIndex == 0) {
+        epochCounter++;
+    }
+
+    ui->errorLabel->setText(QString("Epoch: %1, Error: %2").arg(epochCounter).arg(totalError, 0, 'f', 6));
 
     QApplication::processEvents();
 }

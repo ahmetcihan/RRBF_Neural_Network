@@ -33,6 +33,7 @@ private:
     int numNeurons;
     bool training;
     size_t dataIndex; // Eğitim döngüsünde hangi veri noktasının işlendiğini takip eder
+    int epochCounter;       // Yeni epoch sayacı
 
     // Eğitim verisi
     QVector<QPair<QPair<double, double>, double>> trainingData;
