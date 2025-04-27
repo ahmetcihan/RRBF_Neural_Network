@@ -29,7 +29,7 @@ MainWindow::MainWindow(QWidget *parent)
     customPlot->xAxis->setLabelFont(QFont("Arial", 12));
     customPlot->xAxis->setLabelColor(Qt::black);
     customPlot->yAxis->setLabel("Mean Squared Error");
-    customPlot->yAxis->setLabelFont(QFont("Arial", 12));
+    customPlot->yAxis->setLabelFont(QFont("Arial", 12, QFont::Normal, false));
     customPlot->yAxis->setLabelColor(Qt::black);
 
     testPlot = new QCustomPlot(this->ui->groupBox_testing);
@@ -44,7 +44,14 @@ MainWindow::MainWindow(QWidget *parent)
     testPlot->yAxis->setLabelFont(QFont("Arial", 12));
     testPlot->yAxis->setLabelColor(Qt::black);
 
+    QFont tickFont("Arial", 8);
+    tickFont.setWeight(QFont::Normal);
+    tickFont.setItalic(false);
 
+    customPlot->xAxis->setTickLabelFont(tickFont);
+    customPlot->yAxis->setTickLabelFont(tickFont);
+    testPlot->xAxis->setTickLabelFont(tickFont);
+    testPlot->yAxis->setTickLabelFont(tickFont);
 }
 
 MainWindow::~MainWindow()
