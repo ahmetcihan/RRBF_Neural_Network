@@ -188,7 +188,7 @@
       <number>100</number>
      </property>
      <property name="value">
-      <number>32</number>
+      <number>16</number>
      </property>
     </widget>
     <widget class="QLabel" name="errorLabel_4">
@@ -240,7 +240,7 @@
       <double>0.000100000000000</double>
      </property>
      <property name="value">
-      <double>0.001000000000000</double>
+      <double>0.002000000000000</double>
      </property>
     </widget>
    </widget>
@@ -587,8 +587,8 @@
     <widget class="QLabel" name="errorLabel_9">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>590</y>
+       <x>10</x>
+       <y>40</y>
        <width>400</width>
        <height>31</height>
       </rect>
@@ -601,14 +601,14 @@
       </font>
      </property>
      <property name="text">
-      <string>Epoch: 0 , Error: 0</string>
+      <string>for x : -3.0 to 3.0 , y : -3.0 to 3.0</string>
      </property>
     </widget>
     <widget class="QPushButton" name="drawTestGraphButton">
      <property name="geometry">
       <rect>
        <x>110</x>
-       <y>40</y>
+       <y>130</y>
        <width>200</width>
        <height>40</height>
       </rect>
@@ -622,6 +622,58 @@
      </property>
      <property name="text">
       <string>Draw Test Graph</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="errorLabel_10">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>80</y>
+       <width>141</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Enter step size :</string>
+     </property>
+    </widget>
+    <widget class="QDoubleSpinBox" name="doubleSpinBox_test_step_size">
+     <property name="geometry">
+      <rect>
+       <x>160</x>
+       <y>80</y>
+       <width>100</width>
+       <height>40</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>14</pointsize>
+       <weight>50</weight>
+       <bold>false</bold>
+      </font>
+     </property>
+     <property name="decimals">
+      <number>2</number>
+     </property>
+     <property name="minimum">
+      <double>0.010000000000000</double>
+     </property>
+     <property name="maximum">
+      <double>1.000000000000000</double>
+     </property>
+     <property name="singleStep">
+      <double>0.010000000000000</double>
+     </property>
+     <property name="value">
+      <double>0.500000000000000</double>
      </property>
     </widget>
    </widget>
