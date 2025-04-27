@@ -205,9 +205,6 @@ void MainWindow::trainStep()
     double y = data.first.second;
     double y_desired = data.second;
 
-    double y_output = computeOutput(x, y);
-    double error = y_desired - y_output;
-
     computeGradients(x, y, y_desired, grad_weights, grad_stdDevs, grad_centers);
 
     updateParameters(grad_weights, grad_stdDevs, grad_centers, learningRate);
@@ -299,8 +296,8 @@ void MainWindow::drawTestGraph()
     targetOutputs.clear();
 
     int index = 0;
-    for (double x = -3.0; x <= 3.0; x += 0.1) { // Daha yoğun veri için 0.1 adımla
-        for (double y = -3.0; y <= 3.0; y += 0.1) {
+    for (double x = -3.0; x <= 3.0; x += 0.4) { // Daha yoğun veri için 0.1 adımla
+        for (double y = -3.0; y <= 3.0; y += 0.4) {
             // Ağın çıkışını hesapla
             double z_found = computeOutput(x, y);
 
